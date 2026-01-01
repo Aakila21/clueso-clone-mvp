@@ -3,18 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <title>Clueso Clone</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-
-  
   <link rel="stylesheet" href="style.css" />
-  
 </head>
-<body style="background:#f4f6f8 !important;">
 
+<body>
 
   <h2>🎥 Clueso Clone (MVP)</h2>
-b
-  
+
+  <!-- Auth -->
   <div id="authDiv">
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
@@ -22,7 +18,7 @@ b
     <button id="loginBtn">Login</button>
   </div>
 
-  
+  <!-- Dashboard -->
   <div id="dashboardDiv" style="display:none;">
     <h3>Welcome, <span id="userEmail"></span></h3>
     <button id="logoutBtn">Logout</button>
@@ -30,7 +26,6 @@ b
     <video id="preview" controls></video>
 
     <div id="controls">
-      <button id="previewBtn">Preview Screen</button>
       <button id="startBtn">Start Recording</button>
       <button id="stopBtn" disabled>Stop Recording</button>
       <button id="downloadBtn" disabled>Download</button>
@@ -41,6 +36,6 @@ b
     <div id="recordingsList"></div>
   </div>
 
-  <script type="module" src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
