@@ -1,4 +1,3 @@
-
 const authDiv = document.getElementById("authDiv");
 const dashboardDiv = document.getElementById("dashboardDiv");
 const userEmailSpan = document.getElementById("userEmail");
@@ -10,7 +9,6 @@ const signupBtn = document.getElementById("signupBtn");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 
-const previewBtn = document.getElementById("previewBtn");
 const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
 const downloadBtn = document.getElementById("downloadBtn");
@@ -19,69 +17,65 @@ const videoPreview = document.getElementById("preview");
 const timerSpan = document.getElementById("timer");
 const recordingsList = document.getElementById("recordingsList");
 
-
-
+let mediaRecorder;
+let recordedChunks = [];
+let recordedBlob;
+let screenStream;
 let timer;
-const startTimer = () => {
-  let seconds = 0;
+let seconds = 0;
+
+/* ---------------- TIMER ---------------- */
+function startTimer() {
+  seconds = 0;
   timerSpan.textContent = "00:00";
   timer = setInterval(() => {
     seconds++;
-
-    
-    const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
-    const secs = String(seconds % 60).padStart(2, "0");
-    timerSpan.textContent = mins + ":" + secs;
+    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
+    timerSpan.textContent = `${m}:${s}`;
   }, 1000);
-};
+}
 
-const stopTimer = () => clearInterval(timer); 
+function stopTimer() {
+  clearInterval(timer);
+}
 
+/* ---------------- AUTH ---------------- */
+signupBtn.onclick = () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  if (!email || !password) return alert("Enter email & password");
 
-signupBtn.onclick = function () {
-  var email = emailInput.value.trim();
-  var password = passwordInput.value.trim();
-
-  if (!email || !password) {
-    alert("Please enter both email & password!");
-    return;
-  }
-
-  var users = JSON.parse(localStorage.getItem("users") || "{}");
-  if (users[email]) {
-    alert("User already exists!");
-    return;
-  }
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  if (users[email]) return alert("User already exists");
 
   users[email] = password;
   localStorage.setItem("users", JSON.stringify(users));
-  alert("Signup successful! Now login.");
+  alert("Signup successful! Login now.");
 };
 
-loginBtn.onclick = function () {
-  var email = emailInput.value.trim();
-  var password = passwordInput.value.trim();
+loginBtn.onclick = () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
 
-  var users = JSON.parse(localStorage.getItem("users") || "{}");
-
-  if (users[email] && users[email] == password) {
+  if (users[email] === password) {
     localStorage.setItem("currentUser", email);
     showDashboard(email);
   } else {
-    alert("Invalid credentials!");
+    alert("Invalid credentials");
   }
 };
 
-logoutBtn.onclick = function () {
+logoutBtn.onclick = () => {
   localStorage.removeItem("currentUser");
-  authDiv.style.display = "block";
   dashboardDiv.style.display = "none";
+  authDiv.style.display = "block";
 };
 
-// Page Load 
-window.onload = function () {
-  var currentUser = localStorage.getItem("currentUser");
-  if (currentUser) showDashboard(currentUser);
+window.onload = () => {
+  const user = localStorage.getItem("currentUser");
+  if (user) showDashboard(user);
 };
 
 function showDashboard(email) {
@@ -90,69 +84,63 @@ function showDashboard(email) {
   userEmailSpan.textContent = email;
 }
 
-// Screen Recording 
-var mediaRecorder;
-var chunks = [];
-var recordedBlob;
-var previewStream;
-
-// Preview 
-previewBtn.onclick = async function () {
+/* ---------------- RECORDING ---------------- */
+startBtn.onclick = async () => {
   try {
-    previewStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-    videoPreview.srcObject = previewStream;
-    videoPreview.play();
-  } catch (e) {
-    alert("Screen preview denied.");
-  }
-};
+    screenStream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: true
+    });
 
-// Start recording
-startBtn.onclick = async function () {
-  try {
-    var stream = previewStream || await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-    chunks = [];
-    mediaRecorder = new MediaRecorder(stream);
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(screenStream);
 
-    mediaRecorder.ondataavailable = function (e) {
-      chunks.push(e.data); 
+    mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) recordedChunks.push(e.data);
     };
 
-    mediaRecorder.onstop = function () {
-      recordedBlob = new Blob(chunks, { type: "video/webm" });
+    mediaRecorder.onstop = () => {
+      recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
+
       videoPreview.srcObject = null;
       videoPreview.src = URL.createObjectURL(recordedBlob);
-      videoPreview.play();
+      videoPreview.controls = true;
+      videoPreview.play(); // 🔥 VIDEO PLAYS FIXED
+
       downloadBtn.disabled = false;
 
-      // dashboard list
-      var v = document.createElement("video");
-      v.src = URL.createObjectURL(recordedBlob);
+      const v = document.createElement("video");
+      v.src = videoPreview.src;
       v.controls = true;
-      v.width = 300;
+      v.width = 280;
       recordingsList.appendChild(v);
 
-      stopTimer(); 
+      screenStream.getTracks().forEach(t => t.stop());
+      stopTimer();
     };
 
     mediaRecorder.start();
     startTimer();
+
+    startBtn.disabled = true;
     stopBtn.disabled = false;
-  } catch (e) {
-    alert("Recording permission denied.");
+
+  } catch (err) {
+    alert("Screen permission denied");
   }
 };
 
-// Stop 
-stopBtn.onclick = function () {
-  if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+stopBtn.onclick = () => {
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
+  }
   stopBtn.disabled = true;
+  startBtn.disabled = false;
 };
 
-// Download 
-downloadBtn.onclick = function () {
+downloadBtn.onclick = () => {
   if (!recordedBlob) return;
-  var a = document.createElement("a");
+  const a = document.createElement("a");
   a.href = URL.createObjectURL(recordedBlob);
   a.download = "recording.webm";
   a.click();
