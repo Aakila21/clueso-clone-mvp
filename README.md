@@ -1,44 +1,41 @@
-# 🎥 Clueso.io Clone – MVP
-
-This project is a functional **MVP clone of Clueso.io**, built as part of a product + engineering assignment.  
-The goal is to replicate Clueso’s **core workflows and functionality**, focusing on **feature parity over UI perfection**.
 
 ---
 
-##  Features Implemented
+## 🎥 Demo Video
 
-###  User Onboarding & Authentication
-- Email & password based authentication
-- Login / Logout flow
-- Session-based UI state handling (mocked for MVP)
+📺 **YouTube (Unlisted):**  
+https://youtu.be/Mxl1rQYDTJM
 
-###  Screen Recording (Core Feature)
-- Browser screen/tab recording using Web APIs
-- Start / Stop recording controls
-- Recorded video preview
-- Download recorded video locally
-
-###  Product-like Workflow
-- Login → Dashboard → Record → Stop → Download → Logout
-- Simple, clean UX similar to Clueso’s core experience
+The demo showcases:
+- Signup & login flow
+- Screen preview
+- Screen recording with timer
+- Video preview after recording
+- Downloading the recorded video
+- Logout
 
 ---
 
-## 🛠 Tech Stack
+## Limitations (MVP Scope)
 
-### Frontend
-- **HTML5**
-- **CSS3**
-- **Vanilla JavaScript**
-
-### APIs Used
-- `MediaDevices.getDisplayMedia()`
-- `MediaRecorder API`
-- Browser Blob & File APIs
-
-> Note: This is a frontend-only MVP focused on functionality and workflows.
+- Authentication is mocked using browser storage
+- No backend or cloud storage for recordings
+- No AI transcription or video editing features
+- No team or workspace collaboration
 
 ---
 
-##  Project Structure
+## Future Improvements
 
+- Real authentication (Firebase / Auth service)
+- Cloud storage for recordings
+- AI-powered transcription and smart editing
+- Team collaboration and sharing
+- User dashboard with recording history
+
+---
+
+##  Author
+
+**Aakila Nifaha A H**  
+MCA Student | Frontend & Web Development
